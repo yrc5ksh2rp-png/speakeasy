@@ -131,29 +131,23 @@ function classify(word,set){
  const lines=corpusByWord.get(word)||[];
  return {id:"context",pair:null,rel,morph,clue:lines[0]?.[0]||"先整体记词义，再寻找日常使用场景。"};
 }
-async function load(){
- const raw=await fetchText(SOURCES.core);
- if(!raw){state.loading=false;state.message="高频来源暂时无法读取。请检查网络并点击重试；为避免虚构数量，暂不显示 3,000 词。";render();return}
- const core=csvRows(raw),map=new Map();
- const put=(w,origin)=>{if(!map.has(w))map.set(w,{w,origin,rank:map.size+1,cn:localWordMap.get(w)?.cn||""})};
- core.forEach(w=>put(w,"NGSL"));
- const extra=await fetchText(SOURCES.sup);
- if(extra)csvRows(extra).forEach(w=>put(w,"Supplementary"));
- // Keep the existing SpeakEasy practical cards discoverable alongside NGSL.
- for(const w of lex.words){if(map.size>=3000)break;put(w.w.toLowerCase(),"SpeakEasy")}
- if(map.size<3000){
-  const extension=await fetchText(SOURCES.extended);
-  if(extension)for(const word of csvRows(extension)){if(map.size>=3000)break;put(word,"Frequency supplement")}
- }
- state.words=[...map.values()].slice(0,3000);
+function load(){
+ const bundle=window.SE_OFFLINE_WORDS;
+ if(!bundle||!Array.isArray(bundle.core)){state.loading=false;state.message="网站词库数据未加载，请强制刷新或重新打开页面。";render();return}
+ const map=new Map();
+ const put=(word,source)=>{const w=String(word).trim().toLowerCase();if(!/^[a-z][a-z'-]*$/.test(w)||map.has(w))return;map.set(w,{w,origin:source,rank:map.size+1,cn:localWordMap.get(w)?.cn||""})};
+ bundle.core.forEach(w=>put(w,"NGSL-based"));
+ bundle.curated.forEach(w=>put(w,"SpeakEasy"));
+ bundle.business.forEach(w=>put(w,"Business"));
+ state.words=[...map.values()];
  const set=new Set(state.words.map(x=>x.w));
  for(const w of state.words)w.memory=classify(w.w,set);
- state.source=core.length+" 个 NGSL 基础词条 + "+Math.max(0,state.words.length-core.length)+" 个补充词条";
+ state.source=bundle.core.length+" 个 NGSL 来源词条 + "+(state.words.length-bundle.core.length)+" 个日常及职场补充词条";
  state.loading=false;
- if(state.words.length<3000)state.message="目前已加载 "+state.words.length+" 个有来源的词条。补充词表不可用，因此未虚构剩余词条。";
+ state.message=state.words.length!==3000?"词库数量异常：读取到 "+state.words.length+" 条，请刷新后重试。":"";
  render();
- fillGlosses();
 }
+
 function studied(w){return progress[w]?.level>0}
 function due(w){return progress[w]&&progress[w].due<=isoDay()}
 function filtered(){
