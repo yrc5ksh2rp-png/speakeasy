@@ -180,5 +180,8 @@ $("search").addEventListener("input",e=>{state.search=e.target.value.trim().toLo
 $("card").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.speak){speak(b.dataset.speak)}else if(b.dataset.hide){state.hidden=true;renderCard()}else if(b.dataset.reveal){state.hidden=false;renderCard()}else if(b.dataset.grade){grade(b.dataset.grade)}});
 render();
 </script>
+<script src="./vocabulary-lexicon.js"></script>
+<script src="./vocabulary-examples.js"></script>
+<script src="./vocabulary-upgrade.js"></script>
 </body>
 </html>
