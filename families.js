@@ -88,6 +88,10 @@ async function fetchText(urls){
  }
  return "";
 }
+const nonCompositional=new Set(["understand","resign","interest","remain","realize","remarkable"]);
+const compoundParts={
+airport:["air","port"],homework:["home","work"],housework:["house","work"],bedroom:["bed","room"],bathroom:["bath","room"],classroom:["class","room"],notebook:["note","book"],newspaper:["news","paper"],football:["foot","ball"],basketball:["basket","ball"],weekend:["week","end"],sunlight:["sun","light"],sunshine:["sun","shine"],raincoat:["rain","coat"],rainfall:["rain","fall"],snowfall:["snow","fall"],toothbrush:["tooth","brush"],toothpaste:["tooth","paste"],keyboard:["key","board"],headache:["head","ache"],handbag:["hand","bag"],backpack:["back","pack"],bookshop:["book","shop"],bookstore:["book","store"],smartphone:["smart","phone"],waterfall:["water","fall"],seafood:["sea","food"],everyday:["every","day"],anyone:["any","one"],someone:["some","one"],everyone:["every","one"],anything:["any","thing"],something:["some","thing"],everything:["every","thing"],sometimes:["some","times"],somewhere:["some","where"],anywhere:["any","where"],everywhere:["every","where"],sunflower:["sun","flower"]
+};
 function morphInfo(word,set){
  const known=morphMap.get(word);
  if(known){
@@ -96,6 +100,9 @@ function morphInfo(word,set){
   else if(kind==="后缀"&&word.endsWith(known.id))parts=[word.slice(0,-known.id.length),known.id];
   return {parts,hint:known.note,group:known.piece};
  }
+ if(nonCompositional.has(word))return null;
+ const compound=compoundParts[word];
+ if(compound&&compound.every(part=>set.has(part)))return {parts:compound,group:"合成词",hint:"两个已知词组合成一个词。先分别理解，再记住整词的实际含义。"};
  const prefixes=["un","re","dis","mis","pre","non","over","under","inter"];
  for(const aff of prefixes){if(word.length>aff.length+3&&word.startsWith(aff)&&set.has(word.slice(aff.length))){
    return {parts:[aff,word.slice(aff.length)],group:aff+"-",hint:"词前 "+aff+"- 可以提供理解线索；要结合完整词义使用。"};
