@@ -108,8 +108,8 @@ function morphInfo(word,set){
  for(const aff of prefixes){if(word.length>aff.length+3&&word.startsWith(aff)&&set.has(word.slice(aff.length))){
    return {parts:[aff,word.slice(aff.length)],group:aff+"-",hint:"词前 "+aff+"- 可以提供理解线索；要结合完整词义使用。"};
  }}
- const suffixes=["less","ful","ness","able","ment","ly","er","y"];
- for(const aff of suffixes){if(word.length>aff.length+3&&word.endsWith(aff)&&set.has(word.slice(0,-aff.length))){
+ const suffixes=["less","ful","ness","able","ment","ly"];
+ for(const aff of suffixes){if(word.length>aff.length+4&&word.endsWith(aff)&&word.slice(0,-aff.length).length>=4&&set.has(word.slice(0,-aff.length))){
   return {parts:[word.slice(0,-aff.length),aff],group:"-"+aff,hint:"后缀 -"+aff+" 与词性或语义变化有关，整词意义仍要在例句中确认。"};
  }}
  return null;
