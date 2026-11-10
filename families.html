@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#eaf1fc">
+<title>SpeakEasy · 3000 Core Words</title>
+<meta name="description" content="SpeakEasy 高频英语词条学习：科学分类记忆、词族联想、词块、词根词缀、间隔复习">
+<style>
+:root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#293955;background:#edf3fb}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 8% 0%,#c4d9ff,transparent 39%),radial-gradient(ellipse at 91% 11%,#e9d9ff,transparent 42%),radial-gradient(ellipse at 63% 95%,#d3f2ea,transparent 53%),#f4f7fd;background-attachment:fixed;min-height:100vh}
+button,input{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #5b97d4;outline-offset:3px}
+.wrap{max-width:1400px;margin:auto;padding:22px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:23px}
+.logo{font-size:26px;letter-spacing:-1.2px;font-weight:850}.logo span{color:#377abb}.top nav{display:flex;gap:9px;flex-wrap:wrap}
+.top nav a{background:#ffffffbb;border:1px solid #fff;padding:10px 15px;border-radius:12px;font-size:13px;color:#52708e;font-weight:700}.top nav a.selected{background:#377abb;color:#fff}
+.glass{background:#ffffffb6;border:1px solid #fffffff2;border-radius:22px;box-shadow:0 11px 36px #4e6b9312;backdrop-filter:blur(22px) saturate(160%)}
+.hero{padding:26px 30px;margin-bottom:17px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#3979b6;font-weight:850}
+h1{font-size:clamp(26px,3.6vw,40px);letter-spacing:-1.3px;margin:10px 0}.muted{color:#7d8ca1;font-size:13px;line-height:1.7}.hero .muted{margin:4px 0}
+.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:#f1f6fd;border:1px solid white;padding:12px 17px;border-radius:15px;min-width:95px}.stat b{font-size:26px;display:block}.stat small{font-size:11px;color:#8b99ac}
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:15px;align-items:start}
+aside{padding:19px;position:sticky;top:18px}.section{font-size:12px;color:#899ab2;text-transform:uppercase;letter-spacing:1px;font-weight:800;margin:14px 1px 10px}
+.search{border:1px solid #dde7f2;border-radius:12px;background:#fff;width:100%;padding:12px;margin-bottom:14px}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#ebf2fb;padding:4px;border-radius:12px}
+.modes button{border:0;border-radius:9px;background:transparent;color:#73849c;padding:9px 4px;font-size:12px;font-weight:750}.modes button.active{background:#fff;color:#2f70aa;box-shadow:0 4px 12px #425d8315}
+.methods{display:grid;gap:5px}.method{border:1px solid transparent;border-radius:12px;padding:10px 12px;background:transparent;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;color:#536681;font-size:13px}.method:hover,.method.active{border-color:#e1e8f4;background:#fff;color:#2d6ea8}.method b{font-size:11px;color:#97a6b6;font-weight:650}
+.side-foot{font-size:11px;line-height:1.7;color:#8796ac;padding-top:14px}
+.main{min-width:0}.bar{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.bar strong{font-size:14px}.bar span{color:#8291a5;font-size:12px}
+.board{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:13px;align-items:start}
+.list{padding:12px;max-height:min(76vh,840px);overflow:auto}.item{width:100%;border:1px solid transparent;background:transparent;border-radius:13px;text-align:left;padding:11px 13px;color:#45576d;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px}
+.item:hover,.item.active{background:#f5f8ff;border-color:#dbe8f9}.item strong{display:block;font-size:16px}.item small{display:block;color:#95a1b1;font-size:11px;margin-top:4px}.item .dot{font-size:11px;color:#7f96b1;white-space:nowrap}.more{border:1px solid #dce6f0;border-radius:10px;background:#fff;color:#447eaf;padding:10px 12px;width:100%;font-weight:700}
+.detail{padding:24px;min-height:455px}.detailhead{display:flex;justify-content:space-between;align-items:start;gap:15px}.word{font-size:clamp(29px,4vw,45px);letter-spacing:-1.4px;font-weight:850;margin:8px 0}.hint{color:#7291af;font-size:13px;line-height:1.6}.pill{font-size:12px;color:#4c79a6;border:1px solid #e0eaf6;background:#eff6ff;border-radius:99px;padding:7px 10px;display:inline-block}
+.speaker{border:1px solid #d8e7f6;background:#eef6ff;color:#3878b9;border-radius:13px;padding:10px 13px;white-space:nowrap}
+.picture{min-height:118px;background:linear-gradient(120deg,#e3eeff,#dff4ec);border-radius:17px;display:flex;align-items:center;gap:17px;padding:20px;margin-top:20px}.picture .emoji{font-size:58px;line-height:1}.picture strong{display:block;font-size:15px;margin-bottom:6px}
+.sectionline{border-top:1px solid #e7edf6;margin:22px 0}.mini-heading{font-size:12px;font-weight:850;color:#7b90a7;margin-bottom:11px}.blocks{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.block{background:#edf5ff;color:#3873af;border-radius:10px;padding:10px 13px;font-weight:790}.block.alt{background:#f2ebff;color:#8060a7}.plus{color:#95a3b3}
+.example{background:#f3f7fc;border:1px solid #fff;border-radius:13px;padding:13px 15px;margin:9px 0}.example strong{font-size:15px;line-height:1.45}.example small{color:#8191a3;display:block;font-size:12px;margin-top:6px}.example button{border:0;background:none;color:#4a86c0;float:right}
+.notes{background:#f3f7fd;color:#637890;font-size:13px;line-height:1.8;border-radius:14px;padding:14px 16px;margin:13px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.action{border:1px solid #dae6f2;background:white;color:#456b95;padding:11px 14px;border-radius:11px;font-weight:750;font-size:13px}.action.primary{background:#397dbf;color:white;border-color:#397dbf}
+.empty{padding:50px 24px;text-align:center;color:#8695a7;line-height:1.7}.empty b{display:block;color:#547397;font-size:18px;margin-bottom:8px}
+.notice{font-size:12px;background:#fff8e9;border:1px solid #f0e2be;border-radius:13px;color:#91764c;padding:12px 15px;line-height:1.6;margin-bottom:15px}
+.source{font-size:11px;color:#8a98aa;line-height:1.7;margin-top:20px}.source a{color:#497caf;text-decoration:underline}
+.loading{padding:60px 20px;text-align:center;color:#7a91a8}
+@media(max-width:1050px){.board{grid-template-columns:220px minmax(0,1fr)}}
+@media(max-width:760px){.wrap{padding:12px}.hero{padding:21px}.layout{display:block}aside{position:static;margin-bottom:13px}.methods{display:flex;overflow-x:auto;padding-bottom:6px}.method{flex:0 0 auto;white-space:nowrap}.side-foot{display:none}.board{grid-template-columns:1fr}.list{max-height:165px;display:flex;overflow-x:auto;gap:6px}.item{min-width:146px;margin:0}.item .dot{display:none}.more{min-width:85px;width:auto}.detail{padding:19px}.top nav a{padding:8px 11px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><a href="./index.html" class="logo">speak<span>easy.</span></a><nav aria-label="网站模块"><a href="./index.html">场景口语</a><a href="./legacy.html">每日10句</a><a href="./vocabulary.html">500词精学</a><a href="./families.html" class="selected" aria-current="page">3000词条</a></nav></header>
+<section class="hero glass"><div><div class="eyebrow">High-frequency English · Adaptive Memory</div><h1>3,000 高频词条 · 因词施教</h1><p class="muted">先选最合适的记法，再把单词放进真实交流。词根词缀只是其中一种方式。</p></div><div class="stats" id="stats"><div class="stat"><b>…</b><small>正在加载词表</small></div></div></section>
+<div id="notice" class="notice" hidden></div>
+<div class="layout">
+<aside class="glass">
+<input id="search" class="search" type="search" placeholder="搜索单词、中文或记忆提示…" aria-label="搜索单词">
+<div class="modes" id="modes"><button data-mode="today" class="active">今日学习</button><button data-mode="all">全部</button><button data-mode="review">待复习</button></div>
+<div class="section">按最合适的记忆方式</div>
+<div id="methods" class="methods"></div>
+<p class="side-foot">记忆方式是学习建议，不是词源词典。拼写相似并不意味着一定有词根关系。每天新学不超过 5 个词条。</p>
+</aside>
+<main class="main">
+<div class="bar glass"><strong id="summary">正在加载高频词表…</strong><span id="status">数据以 NGSL 为基础</span></div>
+<div class="board"><div class="list glass" id="list" aria-label="高频词列表"></div><article class="detail glass" id="detail" aria-live="polite"><div class="loading">正在准备记忆策略…</div></article></div>
+<p class="source">词表依据 <a target="_blank" rel="noopener noreferrer" href="https://www.newgeneralservicelist.com/new-general-service-list">NGSL 1.2</a>（Browne, Culligan & Phillips，CC BY-SA 4.0）及 SpeakEasy 自有词库补充。<a target="_blank" rel="noopener noreferrer" href="https://github.com/kami-mura/ngsl-wordlists">开放词表数据说明</a>。词条 ≠ 严格语言学意义的派生词族；网站仅展示经过规则检查的有限关联。中文词义与例句尚在分批完善。</p>
+</main>
+</div>
+</div>
+<script src="./vocabulary-lexicon.js"></script><script src="./vocabulary-examples.js"></script><script src="./families.js"></script>
+</body></html>
