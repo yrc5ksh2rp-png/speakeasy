@@ -26,10 +26,30 @@ getPool=function(){
  if(state.mode==="today"){const dueWords=pool.filter(due),unseen=pool.filter(w=>!state.progress[w.w]);pool=[...dueWords,...unseen.slice(0,Math.max(0,5-dueWords.length))].slice(0,Math.max(5,dueWords.length))}
  return pool;
 };
+let categoryTab="topics";
+const categorySelections={topics:"all",affixes:"all"};
 roots=function(){
  const btn=(id,label,sub,n)=>'<button class="root-btn '+(state.group===id?"active":"")+'" data-group="'+esc(id)+'"><span class="root-name"><strong>'+esc(label)+'</strong><small>'+esc(sub)+'</small></span><span class="count">'+n+'</span></button>';
- $("roots").innerHTML=btn("all","全部词汇","日常英语词汇",WORDS.length)+'<div class="caption" style="margin:15px 4px 8px">20 个生活场景</div>'+topics.map(t=>btn("topic:"+t.id,t.icon+" "+t.name,"生活高频词",WORDS.filter(w=>w.topic===t.id).length)).join("")+'<div class="caption" style="margin:17px 4px 8px">41 个构词线索</div>'+GROUPS.map(g=>btn(g.id,g.piece,g.kind+" · "+g.name,WORDS.filter(w=>w.group===g.id).length)).join("");
+ const list=categoryTab==="topics"
+   ?topics.map(t=>btn("topic:"+t.id,t.icon+" "+t.name,"生活高频词",WORDS.filter(w=>w.topic===t.id).length)).join("")
+   :GROUPS.map(g=>btn(g.id,g.piece,g.kind+" · "+g.name,WORDS.filter(w=>w.group===g.id).length)).join("");
+ $("roots").innerHTML=btn("all","全部词汇","查看所有学习卡片",WORDS.length)+list;
+ document.querySelectorAll("[data-category-tab]").forEach(button=>{
+   const active=button.dataset.categoryTab===categoryTab;
+   button.classList.toggle("active",active);
+   button.setAttribute("aria-pressed",String(active));
+ });
 };
+document.querySelector(".category-tabs").addEventListener("click",event=>{
+ const button=event.target.closest("[data-category-tab]");
+ if(!button||button.dataset.categoryTab===categoryTab)return;
+ categorySelections[categoryTab]=state.group;
+ categoryTab=button.dataset.categoryTab;
+ state.group=categorySelections[categoryTab];
+ state.hidden=false;
+ state.notice="";
+ render();
+});
 renderCard=function(){
  const pool=getPool(),w=WORDS.find(x=>x.w===state.selected);
  if(!w||!pool.some(x=>x.w===w.w)){$("card").innerHTML='<div class="glass empty"><strong>暂无待学习单词</strong>试试其他模式或类别。</div>';$("info").innerHTML="";return}
@@ -45,6 +65,6 @@ renderCard=function(){
  $("info").innerHTML='<section class="glass panel side-card"><h2>🔍 构词与语境</h2><div class="root-big">'+esc(g?g.piece:(w.topicIcon||"📘"))+'</div><div class="eyebrow">'+esc(g?g.kind+" · "+g.name:label)+'</div><p>'+esc(g?g.note:"并非每个词都适合拆词根。日常核心词优先整体记忆。")+'</p><div class="tip"><b>记忆线索</b><div>'+esc(w.why)+'</div></div></section><section class="glass panel side-card"><h2>🧠 低负担记忆</h2><p>① 看场景图理解意思</p><p>② 听双语句子</p><p>③ 隐藏英文进行主动回忆</p><p>④ 根据记忆情况安排复习</p><div class="prompt">新增单词使用内置场景 SVG 插画，不是单词专属照片。每日最多新增 5 词，旧词优先复习。</div></section>';
 };
 document.querySelector(".hero p").textContent="500 个日常词汇 · 20 个生活场景 · 41 个构词线索 · 例句、插画与间隔复习";
-document.querySelector(".side h2").textContent="📚 生活场景与词根词缀";
+document.querySelector(".side h2").textContent="📚 词汇分类";
 render();
 })();
