@@ -40,6 +40,35 @@ const state={words:[],chosen:null,mode:"today",method:"all",query:"",limit:24,hi
 const localWordMap=new Map(lex.words.map(x=>[x.w.toLowerCase(),x]));
 const morphMap=new Map();
 for(const m of lex.morphs){for(const word of m.examples)morphMap.set(word.toLowerCase(),m);}
+const GLOSS_URLS=["https://cdn.jsdelivr.net/gh/imfiiish/wordlists@main/data/en/definitions.json","https://raw.githubusercontent.com/imfiiish/wordlists/main/data/en/definitions.json"];
+function decodeGloss(value){
+ if(value===undefined||value===null)return "";
+ const found=[];
+ function scan(node,depth){
+  if(depth>4||found.length>=12)return;
+  if(typeof node==="string"){if(/[\u3400-\u9fff]/.test(node))found.push(node.replace(/\s+/g," ").trim());return}
+  if(Array.isArray(node)){for(const value of node.slice(0,6))scan(value,depth+1);return}
+  if(node&&typeof node==="object"){
+   for(const key of ["translation","translations","zh","cn","chinese","gloss","glosses","meaning","meanings","definitions","senses"]){if(key in node)scan(node[key],depth+1)}
+  }
+ }
+ scan(value,0);
+ return found[0]?.slice(0,110)||"";
+}
+async function fillGlosses(){
+ const text=await fetchText(GLOSS_URLS);
+ if(!text)return;
+ try{
+  const dic=JSON.parse(text);
+  let added=0;
+  for(const item of state.words){
+   if(item.cn)continue;
+   const gloss=decodeGloss(dic[item.w]??dic[item.w.toLowerCase()]);
+   if(gloss){item.cn=gloss;added++}
+  }
+  if(added)render();
+ }catch(e){}
+}
 const corpusByWord=new Map();
 for(const sentence of corpus){
  const used=new Set((sentence[0].match(/[a-z]+(?:'[a-z]+)?/gi)||[]).map(w=>w.toLowerCase()));
@@ -115,6 +144,7 @@ async function load(){
  state.loading=false;
  if(state.words.length<3000)state.message="目前已加载 "+state.words.length+" 个有来源的词条。补充词表不可用，因此未虚构剩余词条。";
  render();
+ fillGlosses();
 }
 function studied(w){return progress[w]?.level>0}
 function due(w){return progress[w]&&progress[w].due<=isoDay()}
