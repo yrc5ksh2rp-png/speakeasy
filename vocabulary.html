@@ -51,6 +51,11 @@ footer{text-align:center;margin-top:27px;font-size:12px;color:#8593a7;line-heigh
 @media(max-width:1120px){.layout{grid-template-columns:220px minmax(0,1fr)}.info{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:16px}.info .side-card{margin:0}}
 @media(max-width:720px){.app{padding:12px 12px 30px}.hero{padding:22px}.layout{display:block}.side{position:static;margin-bottom:14px}.panel{padding:15px}.root-list{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px}.root-btn{width:auto;flex:0 0 auto;min-width:110px}.root-btn .count{display:none}.side-note{display:none}.workspace{margin-bottom:14px}.word-body{padding:20px}.info{display:block}.info .side-card{margin-bottom:12px}.word-name{font-size:34px}.links a{padding:9px 11px}.metric{min-width:85px;padding:11px 14px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.category-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#eaf1fa;border-radius:13px;padding:5px;margin-bottom:16px}
+.category-tab{border:0;background:transparent;padding:10px 6px;border-radius:9px;color:#74859d;font-size:13px;font-weight:750;white-space:nowrap}
+.category-tab.active{background:#fff;color:#2f70b0;box-shadow:0 4px 12px #4b6f9c18}
+.side .root-list{max-height:min(62vh,620px);overflow-y:auto;overflow-x:hidden;padding-right:4px;overscroll-behavior:contain;scrollbar-width:thin}
+@media(max-width:700px){.side .root-list{max-height:none;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}}
 </style>
 </head>
 <body>
@@ -64,7 +69,7 @@ footer{text-align:center;margin-top:27px;font-size:12px;color:#8593a7;line-heigh
   <div class="metrics" id="stats" aria-label="学习进度"></div>
 </section>
 <div class="layout">
-  <aside class="glass panel side"><h2>🧩 按词根词缀学习</h2><input id="search" class="search" type="search" placeholder="搜索单词或中文…" aria-label="搜索单词或中文"><div id="roots" class="root-list"></div><p class="side-note">词根可以辅助理解，但不是每个单词都适合机械拆解。重点仍是理解整词含义和真实用法。</p></aside>
+  <aside class="glass panel side"><h2>📚 词汇分类</h2><div class="category-tabs" role="group" aria-label="词汇分类方式"><button type="button" class="category-tab active" data-category-tab="topics" aria-pressed="true">生活场景</button><button type="button" class="category-tab" data-category-tab="affixes" aria-pressed="false">词根词缀</button></div><input id="search" class="search" type="search" placeholder="搜索单词或中文…" aria-label="搜索单词或中文"><div id="roots" class="root-list"></div><p class="side-note">词根可以辅助理解，但不是每个单词都适合机械拆解。重点仍是理解整词含义和真实用法。</p></aside>
   <main class="workspace" aria-live="polite">
     <div class="glass toolbar"><div class="segment" id="modes"><button data-mode="today" class="active">今日轻学</button><button data-mode="all">全部单词</button><button data-mode="review">待复习</button></div><span class="toolbar-note" id="toolbar-note"></span></div>
     <div id="word-strip" class="word-strip" aria-label="单词列表"></div>
