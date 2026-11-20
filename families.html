@@ -42,6 +42,13 @@ aside{padding:19px;position:sticky;top:18px}.section{font-size:12px;color:#899ab
 .loading{padding:60px 20px;text-align:center;color:#7a91a8}
 @media(max-width:1050px){.board{grid-template-columns:220px minmax(0,1fr)}}
 @media(max-width:760px){.wrap{padding:12px}.hero{padding:21px}.layout{display:block}aside{position:static;margin-bottom:13px}.methods{display:flex;overflow-x:auto;padding-bottom:6px}.method{flex:0 0 auto;white-space:nowrap}.side-foot{display:none}.board{grid-template-columns:1fr}.list{max-height:165px;display:flex;overflow-x:auto;gap:6px}.item{min-width:146px;margin:0}.item .dot{display:none}.more{min-width:85px;width:auto}.detail{padding:19px}.top nav a{padding:8px 11px}}
+
+.groupbar{padding:12px 17px;margin-bottom:12px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.groupbar label{font-size:12px;color:#71849b;font-weight:800;white-space:nowrap}
+.groupbar select{flex:1;min-width:210px;max-width:470px;border:1px solid #dbe7f2;border-radius:11px;padding:10px 12px;color:#41617e;background:#fff;font:inherit;font-size:13px}
+.groupbar a{border:1px solid #dce7f3;border-radius:11px;color:#3674a9;background:#f7faff;text-decoration:none;font-size:12px;font-weight:750;padding:10px 13px;white-space:nowrap}
+.groupbar a:hover{background:#eaf4ff}
+@media(max-width:760px){.groupbar{align-items:stretch}.groupbar label{width:100%}.groupbar select{min-width:0;max-width:none;width:100%}.groupbar a{text-align:center}}
 </style>
 </head>
 <body>
@@ -59,10 +66,11 @@ aside{padding:19px;position:sticky;top:18px}.section{font-size:12px;color:#899ab
 </aside>
 <main class="main">
 <div class="bar glass"><strong id="summary">正在加载高频词表…</strong><span id="status">数据以 NGSL 为基础</span></div>
+<div class="groupbar glass"><label for="group-filter">🗂️ 选择具体记忆小组</label><select id="group-filter" aria-label="按词根、词块、场景或对比小组筛选"><option value="all">全部小组 · 3000词</option></select><a href="./memory-3000.csv" download>⬇ 导出3000词分类表</a></div>
 <div class="board"><div class="list glass" id="list" aria-label="高频词列表"></div><article class="detail glass" id="detail" aria-live="polite"><div class="loading">正在准备记忆策略…</div></article></div>
-<p class="source">词条数据已经内置，不依赖外部词表服务。基础词来自 <a target="_blank" rel="noopener noreferrer" href="https://github.com/proactiveprogramming/English-wordlists">公开 NGSL 频率词表副本</a>（NGSL 项目作者 Browne、Culligan、Phillips，CC BY-SA 4.0），结合 SpeakEasy 日常词库及少量商务词汇补充。词条 ≠ 严格语言学意义的派生词族；网站仅展示经过规则检查的有限关联。中文释义会尝试引用 ECDICT（MIT）开放数据；部分释义与例句仍需人工精修。</p>
+<p class="source">已按适合的记忆策略给 3000 词分组，可从上方选择词根词缀、词块、易混对比、生活场景等小组，也可下载 CSV 进行自主整理。当前词条分类是学习辅助建议，未逐词人工审定。词条数据已经内置，不依赖外部词表服务。基础词来自 <a target="_blank" rel="noopener noreferrer" href="https://github.com/proactiveprogramming/English-wordlists">公开 NGSL 频率词表副本</a>（NGSL 项目作者 Browne、Culligan、Phillips，CC BY-SA 4.0），结合 SpeakEasy 日常词库及少量商务词汇补充。词条 ≠ 严格语言学意义的派生词族；网站仅展示经过规则检查的有限关联。中文释义会尝试引用 ECDICT（MIT）开放数据；部分释义与例句仍需人工精修。</p>
 </main>
 </div>
 </div>
-<script src="./vocabulary-lexicon.js"></script><script src="./vocabulary-examples.js"></script><script src="./families-data.js?v=2"></script><script src="./families.js?v=2"></script><script src="./personal-illustrations.js?v=1"></script>
+<script src="./vocabulary-lexicon.js"></script><script src="./vocabulary-examples.js"></script><script src="./families-data.js?v=2"></script><script src="./memory-groups.js?v=1"></script><script src="./families.js?v=3"></script><script src="./personal-illustrations.js?v=1"></script>
 </body></html>
