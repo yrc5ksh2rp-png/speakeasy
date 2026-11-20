@@ -1,6 +1,8 @@
 (()=>{
 "use strict";
 const lex=window.SE_LEXICON||{words:[],morphs:[],topics:[]},corpus=window.SE_EXAMPLES||[];
+const memo=window.SE_MEMORY_GROUPS||{groups:[],entries:{}};
+const memoById=new Map(memo.groups.map(g=>[g.id,g]));
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const SOURCES={
@@ -37,7 +39,7 @@ family:"把常用的派生词一起看，但学习进度仍以每个词条为单
 context:"不强求拆词，把完整短句作为记忆单位，理解语境再开口复述。"};
 const LS="speakeasy-3000-progress-v1";
 let progress={};try{progress=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch{}
-const state={words:[],chosen:null,mode:"today",method:"all",query:"",limit:24,hidden:false,loading:true,source:"",message:"",glosses:{}};
+const state={words:[],chosen:null,mode:"today",method:"all",group:"all",query:"",limit:24,hidden:false,loading:true,source:"",message:"",glosses:{}};
 const localWordMap=new Map(lex.words.map(x=>[x.w.toLowerCase(),x]));
 const morphMap=new Map();
 for(const m of lex.morphs){for(const word of m.examples)morphMap.set(word.toLowerCase(),m);}
@@ -141,7 +143,7 @@ function load(){
  bundle.business.forEach(w=>put(w,"Business"));
  state.words=[...map.values()];
  const set=new Set(state.words.map(x=>x.w));
- for(const w of state.words)w.memory=classify(w.w,set);
+ for(const w of state.words){w.memory=classify(w.w,set);w.guide=memo.entries[w.w]||null;const g=memoById.get(w.guide?.g);if(g?.method&&g.method!=="context")w.memory.id=g.method;}
  state.source=bundle.core.length+" 个 NGSL 来源词条 + "+(state.words.length-bundle.core.length)+" 个日常及职场补充词条";
  state.loading=false;
  state.message=state.words.length!==3000?"词库数量异常：读取到 "+state.words.length+" 条，请刷新后重试。":"";
@@ -151,7 +153,7 @@ function load(){
 function studied(w){return progress[w]?.level>0}
 function due(w){return progress[w]&&progress[w].due<=isoDay()}
 function filtered(){
- let a=state.words.filter(x=>(state.method==="all"||x.memory.id===state.method)&&(!state.query||[x.w,x.cn,x.memory.clue].join(" ").toLowerCase().includes(state.query)));
+ let a=state.words.filter(x=>(state.method==="all"||x.memory.id===state.method)&&(state.group==="all"||x.guide?.g===state.group)&&(!state.query||[x.w,x.cn,x.memory.clue].join(" ").toLowerCase().includes(state.query)));
  if(state.mode==="review")return a.filter(x=>due(x.w));
  if(state.mode==="today"){const pending=a.filter(x=>due(x.w)),newcomers=a.filter(x=>!progress[x.w]).sort((x,y)=>Number(localWordMap.has(y.w))-Number(localWordMap.has(x.w))||x.rank-y.rank);return [...pending,...newcomers.slice(0,Math.max(0,5-pending.length))];}
  return a;
@@ -163,6 +165,14 @@ function stats(){
 function renderMethods(){
  const counts={};for(const w of state.words)counts[w.memory.id]=(counts[w.memory.id]||0)+1;
  $("methods").innerHTML='<button class="method '+(state.method==="all"?"active":"")+'" data-method="all"><span>📚 全部记忆策略</span><b>'+state.words.length+'</b></button>'+METHODS.map(m=>'<button class="method '+(state.method===m.id?"active":"")+'" data-method="'+m.id+'"><span>'+m.icon+" "+m.name+'</span><b>'+(counts[m.id]||0)+'</b></button>').join("");
+}
+function renderGroups(){
+ const select=$("group-filter");if(!select)return;
+ const byKind={contrast:"↔️ 对比辨析",chunks:"💬 高频词块",family:"🌳 词族关联",root:"🧩 常见词根",prefix:"🧩 前缀",suffix:"🧩 后缀",visual:"🖼️ 图片联想",scene:"🎬 生活场景",context:"📖 语境记忆"};
+ const kindOrder=["chunks","contrast","prefix","suffix","root","family","scene","visual","context"];
+ const grouped=kindOrder.map(kind=>{const items=memo.groups.filter(g=>g.kind===kind&&g.count>0);return items.length?'<optgroup label="'+esc(byKind[kind])+'">'+items.map(g=>'<option value="'+esc(g.id)+'">'+esc(g.name)+' · '+g.count+'词</option>').join("")+'</optgroup>':""}).join("");
+ select.innerHTML='<option value="all">全部 3000 词 · 按最佳记忆方法</option>'+grouped;
+ select.value=state.group;
 }
 function renderList(items){
  const visible=items.slice(0,state.limit);
@@ -178,6 +188,8 @@ function card(){
  if(!w){$("detail").innerHTML='<div class="empty"><b>没有可学习词条</b>请选择一个分类或查看全部词条。</div>';return}
  const method=METHODS.find(m=>m.id===w.memory.id),m=w.memory,p=progress[w.w];
  const lines=examples(w.w);
+  const focus=memoById.get(w.guide?.g);
+  const focusHtml=focus?'<div class="mini-heading">所在记忆小组 · '+esc(focus.name)+'</div><div class="notes">'+esc(w.guide?.c||focus.hint)+(w.guide?.d?'<div><b>关联：</b>'+esc(w.guide.d)+'</div>':'')+'</div>':"";
  const meaning=w.cn?esc(w.cn):'<span class="muted">暂无校对的中文释义 · 可点击词典查看</span>';
  const pict=icons[w.w]||lex.topics.find(t=>t.id===localWordMap.get(w.w)?.topic)?.icon||(m.id==="visual"?"🖼️":method.icon);
  if(state.hidden){
@@ -189,12 +201,12 @@ function card(){
  const irregularLine=irregular[w.w]?'<div class="notes"><b>重要词形变化：</b>'+esc(irregular[w.w])+'</div>':"";
  const lineHtml=lines.length?'<div class="mini-heading">来自 SpeakEasy 口语库的例句</div>'+lines.map(line=>'<div class="example"><button data-speak="'+esc(line[0])+'" aria-label="朗读例句">🔊</button><strong>'+esc(line[0])+'</strong><small>'+esc(line[1])+'</small></div>').join(""):'<div class="notes">现有 500 句口语素材中尚未找到这个词的原形例句。建议先结合提示学习，并在后续内容更新中补充自然例句。</div>';
  const dict='https://www.oxfordlearnersdictionaries.com/definition/english/'+encodeURIComponent(w.w);
- $("detail").innerHTML='<div class="detailhead"><div><div class="eyebrow">'+esc(method.icon+" "+method.name)+" · #"+w.rank+'</div><div class="word">'+esc(w.w)+'</div><div class="hint">'+meaning+'</div></div><button class="speaker" data-speak="'+esc(w.w)+'">🔊 发音</button></div><div class="picture"><span class="emoji">'+pict+'</span><div><strong>'+esc(method.desc)+'</strong><div class="hint">'+esc(methodNotes[m.id])+'</div></div></div><div class="sectionline"></div><div class="mini-heading">这个词最适合这样记</div>'+chunks+'<div class="notes">'+esc(m.clue)+'</div>'+related+contrast+irregularLine+(m.morph?.hint?'<div class="hint">'+esc(m.morph.hint)+'</div>':"")+'<div class="sectionline"></div>'+lineHtml+'<div class="actions"><button class="action" data-hide="1">🙈 隐藏英文，自测</button><button class="action" data-grade="hard">还没记牢</button><button class="action primary" data-grade="easy">✓ 记住了</button></div><p class="hint">'+(p?"上次安排：下次复习 "+esc(p.due):"首次学习：先理解并开口练习再标记状态。")+' <a target="_blank" rel="noopener noreferrer" style="text-decoration:underline;color:#397dbf" href="'+dict+'">查词典 ↗</a></p>';
+ $("detail").innerHTML='<div class="detailhead"><div><div class="eyebrow">'+esc(method.icon+" "+method.name)+" · #"+w.rank+'</div><div class="word">'+esc(w.w)+'</div><div class="hint">'+meaning+'</div></div><button class="speaker" data-speak="'+esc(w.w)+'">🔊 发音</button></div><div class="picture"><span class="emoji">'+pict+'</span><div><strong>'+esc(method.desc)+'</strong><div class="hint">'+esc(methodNotes[m.id])+'</div></div></div><div class="sectionline"></div><div class="mini-heading">这个词最适合这样记</div>'+chunks+'<div class="notes">'+esc(m.clue)+'</div>'+focusHtml+related+contrast+irregularLine+(m.morph?.hint?'<div class="hint">'+esc(m.morph.hint)+'</div>':"")+'<div class="sectionline"></div>'+lineHtml+'<div class="actions"><button class="action" data-hide="1">🙈 隐藏英文，自测</button><button class="action" data-grade="hard">还没记牢</button><button class="action primary" data-grade="easy">✓ 记住了</button></div><p class="hint">'+(p?"上次安排：下次复习 "+esc(p.due):"首次学习：先理解并开口练习再标记状态。")+' <a target="_blank" rel="noopener noreferrer" style="text-decoration:underline;color:#397dbf" href="'+dict+'">查词典 ↗</a></p>';
 }
 function render(){
  if(state.loading)return;
  $("notice").hidden=!state.message;$("notice").textContent=state.message;
- stats();renderMethods();
+ stats();renderMethods();renderGroups();
  document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===state.mode));
  const pool=filtered();
  if(!pool.some(w=>w.w===state.chosen))state.chosen=pool[0]?.w||null;
@@ -212,6 +224,7 @@ function grade(level){
 }
 $("modes").addEventListener("click",e=>{const b=e.target.closest("[data-mode]");if(!b)return;state.mode=b.dataset.mode;state.hidden=false;state.limit=24;render()});
 $("methods").addEventListener("click",e=>{const b=e.target.closest("[data-method]");if(!b)return;state.method=b.dataset.method;state.hidden=false;state.limit=24;render()});
+$("group-filter").addEventListener("change",e=>{state.group=e.target.value;state.method="all";state.mode="all";state.hidden=false;state.limit=24;render()});
 $("search").addEventListener("input",e=>{state.query=e.target.value.trim().toLowerCase();state.mode="all";state.hidden=false;state.limit=24;render()});
 $("list").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.id==="more"){state.limit+=24;render();return}if(b.dataset.word){state.chosen=b.dataset.word;state.hidden=false;render()}});
 $("detail").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.speak)speak(b.dataset.speak);else if(b.dataset.hide){state.hidden=true;card()}else if(b.dataset.reveal){state.hidden=false;card()}else if(b.dataset.grade){grade(b.dataset.grade)}});
